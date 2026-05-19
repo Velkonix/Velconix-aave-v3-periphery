@@ -14,15 +14,15 @@ try {
 } catch { }
 
 const KEY = process.env.DEPLOYER_KEY || process.env.PRIVATE_KEY;
-const RPC = process.env.MONAD_RPC || process.env.RPC_URL;
-const CHAIN_ID = process.env.MONAD_CHAIN_ID ? Number(process.env.MONAD_CHAIN_ID) : 143;
-const PRICE_FEED = process.env.MONAD_PRICE_FEED || '0xBcD78f76005B7515837af6b50c7C52BCf73822fb';
+const RPC = process.env.MEGAETH_RPC_URL || process.env.RPC_URL;
+const CHAIN_ID = process.env.MEGAETH_CHAIN_ID ? Number(process.env.MEGAETH_CHAIN_ID) : 4326;
+const PRICE_FEED = process.env.MEGAETH_PRICE_FEED || '0xcA4e254D95637DE95E2a2F79244b03380d697feD';
 
-for (const [k, v] of Object.entries({ DEPLOYER_KEY: KEY, MONAD_RPC: RPC })) {
+for (const [k, v] of Object.entries({ DEPLOYER_KEY: KEY, MEGAETH_RPC_URL: RPC })) {
   if (!v) { console.error(`${k} env var is required`); process.exit(1); }
 }
 
-const K613_POOL_ADDRESSES_PROVIDER = '0x1f6E754C6F7A49e2d69e5341d65EcB8f8506C69c';
+const VELKONIX_POOL_ADDRESSES_PROVIDER = '0x4E293100F46889B21a12C5884551FF340AD8d7b9';
 
 function loadArtifact(rel) {
   const p = path.join(__dirname, '..', 'artifacts', 'contracts', 'misc', rel);
@@ -40,11 +40,11 @@ async function deploy(wallet, artifact, args, label) {
 }
 
 (async () => {
-  const provider = new ethers.providers.StaticJsonRpcProvider(RPC, { chainId: CHAIN_ID, name: 'monad' });
+  const provider = new ethers.providers.StaticJsonRpcProvider(RPC, { chainId: CHAIN_ID, name: 'megaeth' });
   const wallet = new ethers.Wallet(KEY, provider);
   console.log('Deployer:', wallet.address);
   const balance = await provider.getBalance(wallet.address);
-  console.log('Balance :', ethers.utils.formatEther(balance), 'MON');
+  console.log('Balance :', ethers.utils.formatEther(balance), 'ETH');
   if (balance.isZero()) { console.error('Zero balance. Aborting.'); process.exit(1); }
 
   const uiPoolArt = loadArtifact('UiPoolDataProviderV3.sol/UiPoolDataProviderV3.json');
@@ -58,7 +58,7 @@ async function deploy(wallet, artifact, args, label) {
   console.log('\n--- Verification: getReservesData on new UiPoolDataProviderV3 ---');
   const c = new ethers.Contract(uiPool, uiPoolArt.abi, provider);
   try {
-    const res = await c.getReservesData(K613_POOL_ADDRESSES_PROVIDER);
+    const res = await c.getReservesData(VELKONIX_POOL_ADDRESSES_PROVIDER);
     console.log(`getReservesData OK, reserves count = ${res[0].length}`);
     res[0].forEach((r, i) => console.log(`  [${i}] ${r.symbol}  underlying=${r.underlyingAsset}`));
   } catch (e) {
@@ -66,7 +66,7 @@ async function deploy(wallet, artifact, args, label) {
   }
 
   console.log('\n=== Deliverables ===');
-  console.log(`NEXT_PUBLIC_MONAD_UI_POOL_DATA_PROVIDER=${uiPool}`);
-  console.log(`NEXT_PUBLIC_MONAD_UI_INCENTIVE_DATA_PROVIDER=${uiInc}`);
-  console.log(`NEXT_PUBLIC_MONAD_WALLET_BALANCE_PROVIDER=${walletBal}`);
+  console.log(`NEXT_PUBLIC_MEGAETH_UI_POOL_DATA_PROVIDER=${uiPool}`);
+  console.log(`NEXT_PUBLIC_MEGAETH_UI_INCENTIVE_DATA_PROVIDER=${uiInc}`);
+  console.log(`NEXT_PUBLIC_MEGAETH_WALLET_BALANCE_PROVIDER=${walletBal}`);
 })().catch((e) => { console.error(e); process.exit(1); });
