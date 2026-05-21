@@ -19,7 +19,7 @@ const RPC = process.env.MEGAETH_RPC_URL || process.env.RPC_URL;
 const CHAIN_ID = 4326;
 const PRICE_FEED = '0xcA4e254D95637DE95E2a2F79244b03380d697feD';
 const VELKONIX_POOL_ADDRESSES_PROVIDER = '0x4E293100F46889B21a12C5884551FF340AD8d7b9';
-const GAS_LIMIT = 8_000_000;
+const GAS_LIMIT = 85_000_000;
 
 for (const [k, v] of Object.entries({ DEPLOYER_KEY: KEY, MEGAETH_RPC_URL: RPC })) {
   if (!v) { console.error(`${k} env var is required`); process.exit(1); }
